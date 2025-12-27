@@ -17,7 +17,7 @@ def nl2br_filter(text):
 cache = {
     'data': None,
     'timestamp': None,
-    'expires_in': 300
+    'expires_in': 1800
 }
 
 
@@ -118,7 +118,9 @@ def index():
     
     all_product_types = sorted(list(set(r.get('product_type', '') for r in get_bitable_records() if r.get('product_type'))))
     
-    return render_template('index.html', records=records, all_product_types=all_product_types, current_filter=product_type_filter)
+    response = render_template('index.html', records=records, all_product_types=all_product_types, current_filter=product_type_filter)
+    response.headers['Cache-Control'] = 'public, max-age=60'
+    return response
 
 
 @app.route('/detail/<record_id>')
@@ -129,7 +131,9 @@ def detail(record_id):
     if not record:
         return "记录不存在", 404
     
-    return render_template('detail.html', record=record)
+    response = render_template('detail.html', record=record)
+    response.headers['Cache-Control'] = 'public, max-age=300'
+    return response
 
 
 @app.route('/proxy/file')
@@ -144,14 +148,18 @@ def proxy_file():
             "Authorization": f"Bearer {token}"
         }
         
-        response = requests.get(file_url, headers=headers, stream=True)
+        response = requests.get(file_url, headers=headers, stream=True, timeout=30)
         response.raise_for_status()
+        
+        content_type = response.headers.get('Content-Type', 'application/octet-stream')
         
         return Response(
             response.iter_content(chunk_size=8192),
-            content_type=response.headers.get('Content-Type', 'application/octet-stream'),
+            content_type=content_type,
             headers={
-                'Cache-Control': 'public, max-age=3600'
+                'Cache-Control': 'public, max-age=86400, immutable',
+                'ETag': f'"{hash(file_url)}"',
+                'Access-Control-Allow-Origin': '*'
             }
         )
     except Exception as e:
