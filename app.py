@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, Response
+from flask import Flask, render_template, request, Response, make_response
 import requests
 import json
 from datetime import datetime, timedelta
@@ -118,9 +118,15 @@ def index():
     
     all_product_types = sorted(list(set(r.get('product_type', '') for r in get_bitable_records() if r.get('product_type'))))
     
-    response = render_template('index.html', records=records, all_product_types=all_product_types, current_filter=product_type_filter)
+    response = make_response(render_template('index.html', records=records, all_product_types=all_product_types, current_filter=product_type_filter))
     response.headers['Cache-Control'] = 'public, max-age=60'
     return response
+
+
+@app.route('/favicon.ico')
+@app.route('/favicon.png')
+def favicon():
+    return '', 204
 
 
 @app.route('/detail/<record_id>')
@@ -131,7 +137,7 @@ def detail(record_id):
     if not record:
         return "记录不存在", 404
     
-    response = render_template('detail.html', record=record)
+    response = make_response(render_template('detail.html', record=record))
     response.headers['Cache-Control'] = 'public, max-age=300'
     return response
 
