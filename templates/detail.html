@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}{{ record.title }} - 详情{% endblock %}
+
+{% block content %}
+<div class="detail-page">
+    <a href="{{ url_for('index') }}" class="btn-back"><i class="fa-solid fa-arrow-left mr-2"></i>返回列表</a>
+    
+    <div class="detail-header">
+        <h1>{{ record.title }}</h1>
+    </div>
+    
+    {% if record.video %}
+    <div class="video-container">
+        <video controls>
+            <source src="{{ record.video }}" type="video/mp4">
+            您的浏览器不支持视频播放。
+        </video>
+    </div>
+    {% endif %}
+    
+    <div class="detail-content">
+        <div class="detail-section">
+            <h2><i class="fa-solid fa-info-circle mr-2"></i>产品信息</h2>
+            <div class="detail-row">
+                <span class="detail-label">ASIN:</span>
+                <span class="detail-value">{{ record.asin }}</span>
+            </div>
+            {% if record.product_type %}
+            <div class="detail-row">
+                <span class="detail-label">产品类型:</span>
+                <span class="detail-value">{{ record.product_type }}</span>
+            </div>
+            {% endif %}
+            {% if record.link %}
+            <div class="detail-row">
+                <span class="detail-label">Listing链接:</span>
+                <a href="{{ record.link }}" target="_blank" class="detail-link">点击查看 <i class="fa-solid fa-external-link-alt ml-1"></i></a>
+            </div>
+            {% endif %}
+        </div>
+        
+        {% if record.selling_points %}
+        <div class="detail-section">
+            <h2><i class="fa-solid fa-star mr-2"></i>五行卖点</h2>
+            <div class="selling-points">
+                {{ record.selling_points|nl2br }}
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if record.prompt %}
+        <div class="detail-section">
+            <h2><i class="fa-solid fa-code mr-2"></i>提示词</h2>
+            <div class="prompt-box">
+                <pre>{{ record.prompt }}</pre>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}视频案例列表{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-12 border-l-4 border-cyan-500 pl-4">
+    <h2 class="text-3xl font-bold font-tech">VIDEO CASES / <span class="text-gray-500 text-xl">视频案例</span></h2>
+    <div class="hidden md:block text-gray-500 text-sm">浏览所有视频案例</div>
+</div>
+
+<div class="filter-container">
+    <div class="filter-label">产品类型筛选:</div>
+    <div class="filter-buttons">
+        <a href="{{ url_for('index') }}" class="filter-btn {% if not current_filter %}active{% endif %}">全部</a>
+        {% for product_type in all_product_types %}
+        <a href="{{ url_for('index', product_type=product_type) }}" class="filter-btn {% if current_filter == product_type %}active{% endif %}">{{ product_type }}</a>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="records-grid">
+    {% for record in records %}
+    <div class="record-card">
+        {% if record.image %}
+        <div class="record-image">
+            <img src="{{ record.image }}" alt="{{ record.title }}">
+        </div>
+        {% endif %}
+        
+        <div class="record-content">
+            <h3 class="record-title">{{ record.title }}</h3>
+            <div class="record-info">
+                <span class="info-label">ASIN:</span>
+                <span class="info-value">{{ record.asin }}</span>
+            </div>
+            {% if record.product_type %}
+            <div class="record-info">
+                <span class="info-label">产品类型:</span>
+                <span class="info-value">{{ record.product_type }}</span>
+            </div>
+            {% endif %}
+            <div class="button-container">
+                {% if record.link %}
+                <a href="{{ record.link }}" target="_blank" class="btn-link">查看Listing</a>
+                {% endif %}
+                <a href="{{ url_for('detail', record_id=record.record_id) }}" target="_blank" class="btn-detail">查看详情</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    
+    {% if not records %}
+    <div class="empty-state col-span-full">
+        <p>暂无数据，请先在飞书多维表格中添加数据。</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
