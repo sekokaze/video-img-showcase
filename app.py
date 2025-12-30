@@ -42,8 +42,10 @@ def get_feishu_tenant_access_token():
     if cache['feishu_token'] and cache['token_timestamp']:
         token_age = (current_time - cache['token_timestamp']).total_seconds()
         if token_age < 3600:
+            print(f"使用缓存的 Feishu token (剩余 {3600 - token_age:.0f} 秒)")
             return cache['feishu_token']
     
+    print("获取新的 Feishu token...")
     url = "https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal"
     headers = {
         "Content-Type": "application/json"
@@ -56,12 +58,17 @@ def get_feishu_tenant_access_token():
     response = requests.post(url, headers=headers, json=data)
     result = response.json()
     
+    print(f"Feishu token API 响应: {result}")
+    
     if result.get('code') == 0:
         cache['feishu_token'] = result.get('tenant_access_token')
         cache['token_timestamp'] = current_time
+        print(f"成功获取 Feishu token: {cache['feishu_token'][:20]}...")
         return cache['feishu_token']
     else:
-        raise Exception(f"获取飞书token失败: {result}")
+        error_msg = f"获取飞书token失败: {result}"
+        print(error_msg)
+        raise Exception(error_msg)
 
 
 def extract_file_url(file_field):
