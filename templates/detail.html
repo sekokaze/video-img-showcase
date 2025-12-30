@@ -7,7 +7,7 @@
     <a href="{{ url_for('index') }}" class="btn-back"><i class="fa-solid fa-arrow-left mr-2"></i>返回列表</a>
     
     <div class="detail-header">
-        <h1>{{ record.title }}</h1>
+        <h1>{{ record.title_translation }}</h1>
     </div>
     
     {% if record.video %}
@@ -40,11 +40,11 @@
             {% endif %}
         </div>
         
-        {% if record.selling_points %}
+        {% if record.selling_points_translation %}
         <div class="detail-section">
             <h2><i class="fa-solid fa-star mr-2"></i>五行卖点</h2>
             <div class="selling-points">
-                {{ record.selling_points|format_selling_points|safe }}
+                {{ record.selling_points_translation|format_selling_points|safe }}
             </div>
         </div>
         {% endif %}

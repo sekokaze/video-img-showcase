@@ -103,7 +103,10 @@ def get_bitable_records():
                     'image': extract_file_url(fields.get('图片')),
                     'link': fields.get('链接', ''),
                     'title': fields.get('标题', ''),
+                    'title_translation': fields.get('标题翻译', ''),
                     'selling_points': fields.get('五行卖点', ''),
+                    'selling_points_translation': fields.get('五行卖点翻译', ''),
+                    'product_short_name': fields.get('产品简称', ''),
                     'product_type': fields.get('产品类型', ''),
                     'prompt': fields.get('提示词', ''),
                     'video': extract_file_url(fields.get('视频'))
