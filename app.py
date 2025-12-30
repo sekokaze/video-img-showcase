@@ -194,7 +194,7 @@ def proxy_file():
         try:
             headers = {}
             
-            if 'open.feishu.cn' not in file_url or 'extra' not in file_url:
+            if 'open.feishu.cn' in file_url:
                 token = get_feishu_tenant_access_token()
                 headers["Authorization"] = f"Bearer {token}"
             
