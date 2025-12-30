@@ -189,10 +189,11 @@ def proxy_file():
     
     for attempt in range(max_retries):
         try:
-            token = get_feishu_tenant_access_token()
-            headers = {
-                "Authorization": f"Bearer {token}"
-            }
+            headers = {}
+            
+            if 'open.feishu.cn' not in file_url or 'extra' not in file_url:
+                token = get_feishu_tenant_access_token()
+                headers["Authorization"] = f"Bearer {token}"
             
             print(f"尝试下载文件 (第 {attempt + 1}/{max_retries} 次): {file_url[:100]}...")
             
