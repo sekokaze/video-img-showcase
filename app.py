@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, Response, make_response
 import requests
 import json
 from datetime import datetime, timedelta
+from urllib.parse import unquote
 from config import Config
 
 app = Flask(__name__)
@@ -183,6 +184,8 @@ def proxy_file():
     file_url = request.args.get('url')
     if not file_url:
         return "缺少 URL 参数", 400
+    
+    file_url = unquote(file_url)
     
     max_retries = 3
     timeout = 60
