@@ -14,6 +14,18 @@ def nl2br_filter(text):
         return ''
     return text.replace('\n', '<br>\n')
 
+@app.template_filter('format_selling_points')
+def format_selling_points_filter(text):
+    if text is None:
+        return ''
+    lines = text.strip().split('\n')
+    result = []
+    for line in lines:
+        line = line.strip()
+        if line:
+            result.append(f'<li>{line}</li>')
+    return '<ul>' + ''.join(result) + '</ul>'
+
 cache = {
     'data': None,
     'timestamp': None,

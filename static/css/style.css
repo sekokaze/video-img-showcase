@@ -494,7 +494,34 @@ body {
 .selling-points {
     color: #ffffff;
     line-height: 1.8;
-    white-space: pre-wrap;
+}
+
+.selling-points ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.selling-points li {
+    position: relative;
+    padding-left: 28px;
+    margin-bottom: 16px;
+    line-height: 1.7;
+}
+
+.selling-points li:last-child {
+    margin-bottom: 0;
+}
+
+.selling-points li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--primary-glow);
+    font-size: 20px;
+    font-weight: bold;
+    line-height: 1.7;
 }
 
 .prompt-box {
