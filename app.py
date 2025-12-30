@@ -147,6 +147,13 @@ def favicon():
     return '', 204
 
 
+@app.route('/refresh-cache')
+def refresh_cache():
+    cache['data'] = None
+    cache['timestamp'] = None
+    return {'success': True, 'message': '缓存已清除，数据已刷新'}
+
+
 @app.route('/detail/<record_id>')
 def detail(record_id):
     records = get_bitable_records()

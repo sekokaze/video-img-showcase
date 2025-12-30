@@ -163,6 +163,34 @@ body {
     box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
 }
 
+.refresh-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    background: transparent;
+    border: 1px solid rgba(0, 240, 255, 0.5);
+    color: var(--primary-glow);
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.refresh-btn:hover:not(:disabled) {
+    background: var(--primary-glow);
+    color: #000;
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+    transform: translateY(-2px);
+}
+
+.refresh-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 @media (max-width: 768px) {
     .filter-container {
         flex-direction: column;
