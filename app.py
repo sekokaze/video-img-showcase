@@ -29,11 +29,20 @@ def format_selling_points_filter(text):
 cache = {
     'data': None,
     'timestamp': None,
-    'expires_in': 1800
+    'expires_in': 1800,
+    'feishu_token': None,
+    'token_timestamp': None
 }
 
 
 def get_feishu_tenant_access_token():
+    current_time = datetime.now()
+    
+    if cache['feishu_token'] and cache['token_timestamp']:
+        token_age = (current_time - cache['token_timestamp']).total_seconds()
+        if token_age < 3600:
+            return cache['feishu_token']
+    
     url = "https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal"
     headers = {
         "Content-Type": "application/json"
@@ -47,7 +56,9 @@ def get_feishu_tenant_access_token():
     result = response.json()
     
     if result.get('code') == 0:
-        return result.get('tenant_access_token')
+        cache['feishu_token'] = result.get('tenant_access_token')
+        cache['token_timestamp'] = current_time
+        return cache['feishu_token']
     else:
         raise Exception(f"获取飞书token失败: {result}")
 
@@ -173,29 +184,49 @@ def proxy_file():
     if not file_url:
         return "缺少 URL 参数", 400
     
-    try:
-        token = get_feishu_tenant_access_token()
-        headers = {
-            "Authorization": f"Bearer {token}"
-        }
-        
-        response = requests.get(file_url, headers=headers, stream=True, timeout=30)
-        response.raise_for_status()
-        
-        content_type = response.headers.get('Content-Type', 'application/octet-stream')
-        
-        return Response(
-            response.iter_content(chunk_size=8192),
-            content_type=content_type,
-            headers={
-                'Cache-Control': 'public, max-age=86400, immutable',
-                'ETag': f'"{hash(file_url)}"',
-                'Access-Control-Allow-Origin': '*'
+    max_retries = 3
+    timeout = 60
+    
+    for attempt in range(max_retries):
+        try:
+            token = get_feishu_tenant_access_token()
+            headers = {
+                "Authorization": f"Bearer {token}"
             }
-        )
-    except Exception as e:
-        print(f"代理文件下载失败: {e}")
-        return f"文件下载失败: {str(e)}", 500
+            
+            print(f"尝试下载文件 (第 {attempt + 1}/{max_retries} 次): {file_url[:100]}...")
+            
+            response = requests.get(file_url, headers=headers, stream=True, timeout=timeout)
+            response.raise_for_status()
+            
+            content_type = response.headers.get('Content-Type', 'application/octet-stream')
+            content_length = response.headers.get('Content-Length', 'unknown')
+            
+            print(f"文件下载成功: {content_type}, 大小: {content_length} bytes")
+            
+            return Response(
+                response.iter_content(chunk_size=8192),
+                content_type=content_type,
+                headers={
+                    'Cache-Control': 'public, max-age=86400, immutable',
+                    'ETag': f'"{hash(file_url)}"',
+                    'Access-Control-Allow-Origin': '*'
+                }
+            )
+        except requests.exceptions.Timeout:
+            print(f"下载超时 (第 {attempt + 1}/{max_retries} 次): {file_url[:100]}")
+            if attempt == max_retries - 1:
+                return "文件下载超时，请稍后重试", 504
+        except requests.exceptions.HTTPError as e:
+            print(f"HTTP 错误 (第 {attempt + 1}/{max_retries} 次): {e.response.status_code} - {str(e)}")
+            if attempt == max_retries - 1:
+                return f"文件下载失败: HTTP {e.response.status_code}", e.response.status_code
+        except Exception as e:
+            print(f"代理文件下载失败 (第 {attempt + 1}/{max_retries} 次): {type(e).__name__}: {str(e)}")
+            if attempt == max_retries - 1:
+                return f"文件下载失败: {str(e)}", 500
+    
+    return "文件下载失败，请稍后重试", 500
 
 
 if __name__ == '__main__':
