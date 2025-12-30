@@ -185,7 +185,9 @@ def proxy_file():
     if not file_url:
         return "缺少 URL 参数", 400
     
+    print(f"原始 URL: {file_url}")
     file_url = unquote(file_url)
+    print(f"解码后 URL: {file_url}")
     
     max_retries = 3
     timeout = 60
@@ -197,10 +199,15 @@ def proxy_file():
             if 'open.feishu.cn' in file_url:
                 token = get_feishu_tenant_access_token()
                 headers["Authorization"] = f"Bearer {token}"
+                print(f"使用 Feishu token: {token[:20]}...")
             
+            print(f"请求 headers: {headers}")
             print(f"尝试下载文件 (第 {attempt + 1}/{max_retries} 次): {file_url[:100]}...")
             
             response = requests.get(file_url, headers=headers, stream=True, timeout=timeout)
+            print(f"响应状态码: {response.status_code}")
+            print(f"响应 headers: {dict(response.headers)}")
+            
             response.raise_for_status()
             
             content_type = response.headers.get('Content-Type', 'application/octet-stream')
@@ -222,7 +229,8 @@ def proxy_file():
             if attempt == max_retries - 1:
                 return "文件下载超时，请稍后重试", 504
         except requests.exceptions.HTTPError as e:
-            print(f"HTTP 错误 (第 {attempt + 1}/{max_retries} 次): {e.response.status_code} - {str(e)}")
+            print(f"HTTP 错误 (第 {attempt + 1}/{max_retries} 次): {e.response.status_code}")
+            print(f"响应内容: {e.response.text[:500]}")
             if attempt == max_retries - 1:
                 return f"文件下载失败: HTTP {e.response.status_code}", e.response.status_code
         except Exception as e:
