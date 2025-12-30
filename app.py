@@ -231,15 +231,28 @@ def proxy_file():
                     'Access-Control-Allow-Origin': '*'
                 }
             )
+        except requests.exceptions.HTTPError as e:
+            print(f"HTTP 错误 (第 {attempt + 1}/{max_retries} 次): {e.response.status_code}")
+            print(f"响应内容: {e.response.text[:500]}")
+            
+            if e.response.status_code == 400 and 'extra=' in file_url:
+                print("遇到400错误，尝试移除extra参数重新请求")
+                from urllib.parse import urlparse, urlunparse, parse_qs, urlencode
+                
+                parsed = urlparse(file_url)
+                query_params = parse_qs(parsed.query)
+                query_params.pop('extra', None)
+                new_query = urlencode(query_params, doseq=True)
+                file_url = urlunparse(parsed._replace(query=new_query))
+                print(f"移除extra后的URL: {file_url}")
+                continue
+            
+            if attempt == max_retries - 1:
+                return f"文件下载失败: HTTP {e.response.status_code}", e.response.status_code
         except requests.exceptions.Timeout:
             print(f"下载超时 (第 {attempt + 1}/{max_retries} 次): {file_url[:100]}")
             if attempt == max_retries - 1:
                 return "文件下载超时，请稍后重试", 504
-        except requests.exceptions.HTTPError as e:
-            print(f"HTTP 错误 (第 {attempt + 1}/{max_retries} 次): {e.response.status_code}")
-            print(f"响应内容: {e.response.text[:500]}")
-            if attempt == max_retries - 1:
-                return f"文件下载失败: HTTP {e.response.status_code}", e.response.status_code
         except Exception as e:
             print(f"代理文件下载失败 (第 {attempt + 1}/{max_retries} 次): {type(e).__name__}: {str(e)}")
             if attempt == max_retries - 1:
