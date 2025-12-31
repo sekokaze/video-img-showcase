@@ -14,6 +14,25 @@ document.addEventListener('DOMContentLoaded', function() {
     initParticleAnimation();
 });
 
+function copyPrompt() {
+    const promptText = document.getElementById('prompt-text');
+    if (promptText) {
+        navigator.clipboard.writeText(promptText.textContent).then(() => {
+            const btn = document.querySelector('.btn-copy');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i>已复制';
+            btn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+            
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.style.background = '';
+            }, 2000);
+        }).catch(err => {
+            console.error('复制失败:', err);
+        });
+    }
+}
+
 function initParticleAnimation() {
     const canvas = document.getElementById('particle-canvas');
     if (!canvas) return;

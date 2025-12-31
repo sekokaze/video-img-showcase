@@ -4,7 +4,10 @@
 
 {% block content %}
 <div class="detail-page">
-    <a href="{{ url_for('index') }}" class="btn-back"><i class="fa-solid fa-arrow-left mr-2"></i>返回列表</a>
+    <div class="detail-actions">
+        <a href="{{ url_for('index') }}" class="btn-back"><i class="fa-solid fa-arrow-left mr-2"></i>返回列表</a>
+        <a href="https://video.brainyxia.com/?code=PW4SVCTF" target="_blank" class="btn-try-same"><i class="fa-solid fa-play mr-2"></i>尝试同款</a>
+    </div>
     
     <div class="detail-header">
         <h1>{{ record.title_translation }}</h1>
@@ -51,9 +54,12 @@
         
         {% if record.prompt %}
         <div class="detail-section">
-            <h2><i class="fa-solid fa-code mr-2"></i>提示词</h2>
+            <div class="section-header">
+                <h2><i class="fa-solid fa-code mr-2"></i>提示词</h2>
+                <button class="btn-copy" onclick="copyPrompt()"><i class="fa-solid fa-copy mr-1"></i>复制</button>
+            </div>
             <div class="prompt-box">
-                <pre>{{ record.prompt }}</pre>
+                <pre id="prompt-text">{{ record.prompt }}</pre>
             </div>
         </div>
         {% endif %}
